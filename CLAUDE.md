@@ -4,7 +4,7 @@ Guidance for Claude Code working in this repo.
 
 ## What this is
 
-After-Purchase Concierge: a self-hosted MCP server for the Amazon Developer Hackathon (Alexa+ track, AWS Builder mini challenge), built to be an Alexa+ MCP add-on. Deadline 24 Oct 2026 00:30 IST; we treat 23 Oct 18:00 IST as the deadline. The deployment must stay up until judging ends on 20 Nov 2026. A merchant's customer says "Alexa, my blender stopped working"; we troubleshoot from the real manual, then pick and file the cheapest resolution (return, warranty claim, or part) with cards on the Echo Show.
+After-Purchase Concierge: a self-hosted MCP server for the Amazon Developer Hackathon (Alexa+ track, AWS Builder mini challenge), built to be an Alexa+ MCP add-on. Deadline 24 Oct 2026 00:30 IST; we treat 23 Oct 18:00 IST as the deadline. The deployment must stay up until judging ends on 20 Nov 2026. A merchant's customer says "Alexa, my blender stopped working"; we troubleshoot from the product manual, then pick and file the cheapest resolution (return, warranty claim, or part) with cards on the Echo Show.
 
 The Alexa+ side is simulated. Amazon's MCP Toolkit is available to select partners only and US only, so we cannot register with real Alexa+. The hackathon rules allow a simulated Alexa+ experience in a web app. Our simulator at `/sim` is an ordinary MCP client of the server; the MCP server is the product and the required technology.
 
@@ -26,7 +26,9 @@ Read in this order when you need context: `docs/IMPLEMENTATION_PLAN.md` (what to
 ```
 npm run dev            # tsx watch src/main.ts on :3001; simulator at http://localhost:3001/sim
 npm run build          # tsc + vite single-file build of ui/ into dist/
-npm test               # node --test
+npm test               # node --test on test/*.test.ts: unit tests, no network
+npm run test:e2e       # test/*.e2e.ts against BASE_URL (default localhost:3001) and the real store, KB and table
+npm run test:cases     # the 20 utterances in test/cases.json through POST /sim/chat
 npm run precompute     # scripts/precompute.ts: rebuild STEPS# cache from the Knowledge Base
 npm run seed           # scripts/seed-shopify.ts: products, customer, fulfilled orders dated relative to today
 npm run deploy         # docker build, push to ECR, update the ECS Express Mode service

@@ -64,7 +64,7 @@ The client handles speech, intent, tool selection, response wording and UI hosti
 
 ### 2.5 Assumptions
 - A1. MCP Toolkit access is not granted. Every requirement is verifiable without it, through the simulator and MCP Inspector. If access does arrive, onboarding is a bonus (FR-3).
-- A2. The three demo products have text-based (not scanned) manuals.
+- A2. The three demo products are invented, with text-based manuals we wrote ourselves, unless redistributable manufacturer manuals are available (gate G1 in the plan). Real brands cannot appear in the video, and manufacturer PDFs cannot be committed to a public repo.
 - A3. A single demo customer is acceptable to judges when the account-linking path is documented.
 - A4. S3 Vectors is available as the KB vector store in us-west-2; otherwise OpenSearch Serverless is used.
 - A5. A simulated Alexa+ surface in front of a real MCP server satisfies the track. Basis: the rules ask for "a working Agent Skill or a self-hosted MCP server" and say "developers can simulate the Alexa+ experience in a web app using their own agentic tools".
@@ -164,7 +164,7 @@ Priority: M = must (demo breaks without it), S = should (judges will notice), C 
 | MCP client -> server | inbound | `resources/read` of `ui://` URIs | Host reads the view before the first `tools/call` |
 | Browser -> simulator | inbound | HTTPS, `GET /sim`, `POST /sim/chat` | Access code required |
 | Simulator -> Bedrock | outbound | `bedrock-runtime` Converse with tool use | IAM task role; model set by `SIM_MODEL_ID` |
-| Server -> Shopify | outbound | Admin GraphQL API, bearer token from the client credentials grant, refreshed before expiry | Scopes: read_orders, read_customers, read_products, write_returns, write_draft_orders |
+| Server -> Shopify | outbound | Admin GraphQL API, bearer token from the client credentials grant, refreshed before expiry | Runtime scopes: read_orders, read_customers, read_products, write_returns, write_draft_orders. The seed script also needs write_orders, write_customers, write_products |
 | Server -> Bedrock | outbound | `bedrock-agent-runtime` Retrieve / RetrieveAndGenerate | IAM task role |
 | Server -> DynamoDB | outbound | AWS SDK v3 | Single table `concierge` |
 | Developer -> AWS | tooling | `docker build`, push to ECR, ECS Express Mode service update | One deploy command |

@@ -1,6 +1,6 @@
 # After-Purchase Concierge: Architecture
 
-A self-hosted MCP server, built to be an Alexa+ MCP add-on, that a merchant plugs in to handle everything after a purchase: troubleshooting from the real manual, then the cheapest resolution that solves the problem (return, warranty claim, or replacement part), with interactive cards on screen devices.
+A self-hosted MCP server, built to be an Alexa+ MCP add-on, that a merchant plugs in to handle everything after a purchase: troubleshooting from the product manual, then the cheapest resolution that solves the problem (return, warranty claim, or replacement part), with interactive cards on screen devices.
 
 Status: design, 10 Oct 2026; revised 11 Oct 2026. Verify SDK import names against the `modelcontextprotocol/ext-apps` templates before coding; the v2 SDK is still a beta, so pin exact versions.
 
@@ -215,7 +215,7 @@ GitHub repo --(docker build, push)--> Amazon ECR --> Amazon ECS Express Mode ser
 - Confirm before acting: every write tool requires `confirmed: true`; idempotency prevents double filing.
 - Data minimisation: customer key is a hash of the email; logs carry IDs, never names, emails or addresses; SESSION items expire in 24 h via TTL; claims and returns are kept 30 days (stated on `/privacy`).
 - Secrets: Shopify client secret and the simulator access code in the ECS task environment from Secrets Manager; nothing in the repo.
-- The manuals are public manufacturer documents; no customer content enters the Knowledge Base.
+- The manuals are our own documents for three invented products (gate G1 in the plan), so they can be committed, redistributed and shown on video; no customer content enters the Knowledge Base.
 
 ## 10. Latency budget (Alexa+ requires under 500 ms round trip)
 
@@ -304,8 +304,11 @@ Browser: /sim                                   Server process
 |   = ui:// view              |      { say, toolCalls[{ name, ms, result }] }    3. model picks a tool -> tools/call
 | tool-call panel             |                                                  4. result text back to the model -> `say`
 +-----------------------------+
-        | card button -> callServerTool -> POST /mcp (through the host bridge)
+        | card button -> callServerTool -> host bridge -> POST /sim/tool -> MCP client -> POST /mcp
+        | card HTML   <- GET /sim/resource?uri=ui://... <- MCP client resources/read
 ```
+
+The exact request and response shapes, the system prompt and the limits are in `IMPLEMENTATION_PLAN.md` Appendix A5.
 
 Rules
 - The agent reaches the tools only through `MCP_URL` over HTTP, never by importing `src/tools`. This is what makes the demo evidence that the MCP server works.
