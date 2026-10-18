@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { resolve, daysBetween, type ResolveInput } from '../src/policy.ts';
+import { resolve, daysBetween, describeOptions, type ResolveInput } from '../src/policy.ts';
 
 const TODAY = '2026-10-20';
 const daysAgo = (n: number) => new Date(Date.UTC(2026, 9, 20) - n * 86_400_000).toISOString().slice(0, 10);
@@ -86,4 +86,13 @@ test('T2.9 every option has a non-empty one-sentence reason', () => {
 test('daysBetween ignores time of day and uses UTC calendar days', () => {
   assert.equal(daysBetween('2026-09-16T23:59:00Z', '2026-10-20T00:01:00Z'), 34);
   assert.equal(daysBetween('2026-10-20', '2026-10-20'), 0);
+});
+
+test('describeOptions speaks the top option, mentioning a missed return window first', () => {
+  const blender = resolve({ ...base, purchaseDate: daysAgo(34) }).options;
+  assert.equal(describeOptions(blender), '4 days past the 30-day return window, but about 11 months of warranty remain, so the merchant can repair or replace it at no cost. Shall I file the warranty claim?');
+  const inWindow = resolve(base).options;
+  assert.match(describeOptions(inWindow), /^Bought 10 days ago, inside the 30-day return window.*Shall I start the return\?$/);
+  const expired = resolve({ ...base, purchaseDate: daysAgo(400) }).options;
+  assert.match(describeOptions(expired), /Shall I pass this to the merchant\?$/);
 });

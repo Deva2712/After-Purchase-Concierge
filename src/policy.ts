@@ -107,3 +107,20 @@ function ranked(drafts: Draft[]): Option[] {
 function money(n: number): string {
   return Number.isInteger(n) ? `$${n}` : `$${n.toFixed(2)}`;
 }
+
+const VERBS: Record<Action, string> = {
+  return: 'start the return',
+  warranty_claim: 'file the warranty claim',
+  order_part: 'order it',
+  contact_merchant: 'pass this to the merchant',
+};
+
+/** One or two spoken sentences: why the top option, and the question that asks for confirmation. */
+export function describeOptions(options: Option[]): string {
+  const top = options[0];
+  const ret = options.find(o => o.action === 'return');
+  const lead = top.action !== 'return' && ret && !ret.eligible && !ret.reason.startsWith('The purchase date')
+    ? `${ret.reason.replace(/\.$/, '')}, but ${top.reason.charAt(0).toLowerCase()}${top.reason.slice(1)}`
+    : top.reason;
+  return `${lead} Shall I ${VERBS[top.action]}?`;
+}

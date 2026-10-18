@@ -170,12 +170,12 @@ Edge cases covered by tests: boundary day of the window, warranty exactly expire
 | pk | sk | attributes |
 |---|---|---|
 | `CUST#<email-hash>` | `SESSION` | lastProductId, lastOrderId, lastSymptom, updatedAt, ttl (24 h) |
-| `CUST#<email-hash>` | `CLAIM#<ulid>` | orderId, lineItemId, symptom, status, createdAt, idem |
-| `CUST#<email-hash>` | `RETURN#<ulid>` | shopifyReturnId, orderId, lineItemId, pickupDate, idem |
-| `CUST#<email-hash>` | `PART#<ulid>` | draftOrderId, variantId, price, idem |
+| `CUST#<email-hash>` | `CLAIM#<idem>` | orderId, lineItemId, symptom, status, createdAt, idem |
+| `CUST#<email-hash>` | `RETURN#<idem>` | shopifyReturnId, orderId, lineItemId, pickupDate, idem |
+| `CUST#<email-hash>` | `PART#<idem>` | draftOrderId, variantId, price, idem |
 | `STEPS#<productId>` | `<symptomKey>` | steps[], source, generatedAt |
 
-Idempotency: `idem = sha256(orderId + lineItemId + action)` stored as a GSI-less conditional put (`attribute_not_exists(idem)` on an `IDEM#<hash>` item). A repeated "yes" returns the existing record instead of filing twice.
+Idempotency: `idem = sha256(orderId + lineItemId + action)` is the record's own sort key (`CLAIM#<idem>`, `RETURN#<idem>`, `PART#<idem>`), written with a conditional put (`attribute_not_exists(pk)`). A repeated "yes" fails the condition and the tool returns the existing record instead of filing twice. Customer-facing references (claim reference, return name) derive from the same key, so they repeat too.
 
 Delete: `Query pk = CUST#<hash>` then `BatchWrite` delete. Exposed as the `delete_my_data` tool and `DELETE /data`.
 

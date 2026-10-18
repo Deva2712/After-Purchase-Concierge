@@ -5,6 +5,7 @@ COPY package.json package-lock.json .npmrc ./
 RUN npm ci
 COPY tsconfig.json ./
 COPY src ./src
+COPY config ./config
 COPY sim ./sim
 COPY scripts ./scripts
 RUN npm run build
@@ -14,7 +15,8 @@ WORKDIR /app
 ENV NODE_ENV=production
 ARG GIT_SHA=unknown
 ENV GIT_SHA=$GIT_SHA
-COPY package.json package-lock.json .npmrc ./
+# No .npmrc here: its include=dev is for developer shells; production stays dev-free.
+COPY package.json package-lock.json ./
 RUN npm ci --omit=dev
 COPY --from=build /app/dist ./dist
 EXPOSE 3001
