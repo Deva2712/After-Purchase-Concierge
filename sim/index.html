@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Simulated Alexa+ experience</title>
+<style>
+  body { font: 16px/1.4 system-ui, sans-serif; margin: 0; padding: 16px; max-width: 720px; margin-inline: auto; background: #0f1115; color: #e8e8e8; }
+  h1 { font-size: 18px; margin: 0 0 4px; }
+  .note { color: #9aa; font-size: 13px; margin-bottom: 16px; }
+  label { display: block; font-size: 13px; color: #9aa; margin-top: 12px; }
+  input, textarea { width: 100%; box-sizing: border-box; padding: 10px; border-radius: 8px; border: 1px solid #333; background: #1a1d24; color: #fff; font: inherit; }
+  button { margin-top: 8px; min-height: 48px; padding: 0 20px; border-radius: 8px; border: 0; background: #31a8ff; color: #000; font: inherit; font-weight: 600; cursor: pointer; }
+  #log { margin-top: 16px; display: grid; gap: 8px; }
+  .u, .a { padding: 10px 12px; border-radius: 10px; max-width: 90%; }
+  .u { background: #263241; justify-self: end; }
+  .a { background: #1e2a1e; }
+  .t { font-size: 12px; color: #8c8; }
+</style>
+</head>
+<body>
+<h1>Simulated Alexa+ experience</h1>
+<div class="note">This page is a stand-in for Alexa+: a real MCP client talking to the concierge server over Streamable HTTP. It is not Alexa.</div>
+<label>Access code <input id="code" autocomplete="off"></label>
+<label>Say something <input id="utt" placeholder="ping" autocomplete="off"></label>
+<button id="send">Send</button>
+<div id="log"></div>
+<script>
+  const sessionId = crypto.randomUUID();
+  const code = document.getElementById('code'), utt = document.getElementById('utt'), log = document.getElementById('log');
+  code.value = new URLSearchParams(location.search).get('code') || localStorage.getItem('simCode') || '';
+  function add(cls, text) { const d = document.createElement('div'); d.className = cls; d.textContent = text; log.appendChild(d); d.scrollIntoView(); }
+  async function send() {
+    const utterance = utt.value.trim(); if (!utterance) return;
+    localStorage.setItem('simCode', code.value);
+    add('u', utterance); utt.value = '';
+    const r = await fetch('/sim/chat', { method: 'POST', headers: { 'content-type': 'application/json', 'x-sim-code': code.value }, body: JSON.stringify({ sessionId, utterance }) });
+    const j = await r.json().catch(() => ({}));
+    if (!r.ok) { add('a', j.error || j.say || ('HTTP ' + r.status)); return; }
+    for (const c of j.toolCalls || []) add('t', `tool ${c.name} ${c.ms} ms${c.isError ? ' (error)' : ''}`);
+    add('a', j.say);
+  }
+  document.getElementById('send').onclick = send;
+  utt.addEventListener('keydown', e => { if (e.key === 'Enter') send(); });
+</script>
+</body>
+</html>
