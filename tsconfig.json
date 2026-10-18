@@ -12,7 +12,14 @@
     "resolveJsonModule": true,
     "outDir": "dist",
     "rootDir": ".",
-    "types": ["node"]
+    "types": [
+      "node"
+    ]
   },
-  "include": ["src", "sim", "scripts"]
+  "include": [
+    "src",
+    "sim",
+    "scripts",
+    "ui"
+  ]
 }

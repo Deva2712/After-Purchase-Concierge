@@ -8,6 +8,7 @@ import { getRecord, putOnce } from '../db.ts';
 import { optionsForLine } from './get_resolution_options.ts';
 import { CONFIRM_TEXT } from './file_warranty_claim.ts';
 import { runTool } from '../log.ts';
+import { uiMeta } from '../ui.ts';
 
 export type ReturnRecord = {
   type: 'RETURN'; returnId: string; returnName: string; orderId: string; lineItemId: string; productId: string; productTitle: string;
@@ -35,6 +36,7 @@ export function registerCreateReturn(server: McpServer) {
         confirmed: z.boolean().optional().describe('Must be true. Set it only after the customer explicitly agreed to the return.'),
       }),
       annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: true },
+      _meta: uiMeta('confirmation'),
     },
     async ({ orderId, lineItemId, reason, confirmed }) => runTool('create_return', { orderId }, async () => {
       // The confirmation check is the first statement, before any read or write (FR-15).

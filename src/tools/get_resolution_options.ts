@@ -6,6 +6,7 @@ import { demoCustomer } from '../identity.ts';
 import { getSession } from '../db.ts';
 import { resolve, describeOptions, type Option } from '../policy.ts';
 import { runTool } from '../log.ts';
+import { uiMeta } from '../ui.ts';
 
 export type LineOptions =
   | { ok: true; options: Option[]; productId: string; productTitle: string; symptomKey?: string; purchaseDate: string; text: string }
@@ -45,6 +46,7 @@ export function registerGetResolutionOptions(server: McpServer) {
         symptom: z.string().optional().describe("The problem in the customer's words, if known"),
       }),
       annotations: { readOnlyHint: true },
+      _meta: uiMeta('options'),
     },
     async ({ orderId, lineItemId, symptom }) => runTool('get_resolution_options', { orderId }, async () => {
       const r = await optionsForLine(orderId, lineItemId, symptom);

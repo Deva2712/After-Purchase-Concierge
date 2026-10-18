@@ -3,10 +3,11 @@ FROM node:24-slim AS build
 WORKDIR /app
 COPY package.json package-lock.json .npmrc ./
 RUN npm ci
-COPY tsconfig.json ./
+COPY tsconfig.json vite.config.ts ./
 COPY src ./src
 COPY config ./config
 COPY sim ./sim
+COPY ui ./ui
 COPY scripts ./scripts
 RUN npm run build
 

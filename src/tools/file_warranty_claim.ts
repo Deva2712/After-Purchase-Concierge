@@ -4,6 +4,7 @@ import { demoCustomer, idemKey } from '../identity.ts';
 import { putOnce } from '../db.ts';
 import { optionsForLine } from './get_resolution_options.ts';
 import { runTool } from '../log.ts';
+import { uiMeta } from '../ui.ts';
 
 export const CONFIRM_TEXT = 'Please confirm with the customer before I do this.';
 export const NEXT_STEP = 'The merchant replies within 2 business days with a repair or replacement decision.';
@@ -28,6 +29,7 @@ export function registerFileWarrantyClaim(server: McpServer) {
         confirmed: z.boolean().optional().describe('Must be true. Set it only after the customer explicitly agreed to file the claim.'),
       }),
       annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: true },
+      _meta: uiMeta('confirmation'),
     },
     async ({ orderId, lineItemId, symptom, confirmed }) => runTool('file_warranty_claim', { orderId }, async () => {
       // The confirmation check is the first statement, before any read or write (FR-15).

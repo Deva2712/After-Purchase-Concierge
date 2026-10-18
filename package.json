@@ -10,7 +10,7 @@
   },
   "scripts": {
     "dev": "tsx watch src/main.ts",
-    "build": "tsc && mkdir -p dist/sim && cp sim/index.html dist/sim/",
+    "build": "tsc && rm -rf dist/ui dist/sim && for t in steps options confirmation sim; do VITE_TARGET=$t vite build || exit 1; done",
     "test": "node --test 'test/**/*.test.ts'",
     "test:e2e": "node --env-file-if-exists=.env --test 'test/**/*.e2e.ts'",
     "test:cases": "echo 'not built yet (Phase 4)'",

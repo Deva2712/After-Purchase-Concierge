@@ -4,6 +4,7 @@ import { demoCustomer } from '../identity.ts';
 import { getSession, putSession } from '../db.ts';
 import { optionsForLine } from './get_resolution_options.ts';
 import { runTool } from '../log.ts';
+import { uiMeta } from '../ui.ts';
 
 export function registerReportOutcome(server: McpServer) {
   server.registerTool(
@@ -18,6 +19,7 @@ export function registerReportOutcome(server: McpServer) {
         lineItemId: z.string().optional().describe('lineItemId from identify_product, if known'),
       }),
       annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: true },
+      _meta: uiMeta('options'),
     },
     async ({ productId, worked, orderId, lineItemId }) => runTool('report_outcome', { productId, orderId }, async () => {
       const { hash } = demoCustomer();

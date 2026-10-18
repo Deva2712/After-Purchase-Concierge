@@ -8,6 +8,7 @@ import { registerCreateReturn } from './tools/create_return.ts';
 import { registerFileWarrantyClaim } from './tools/file_warranty_claim.ts';
 import { registerOrderPart } from './tools/order_part.ts';
 import { registerDeleteMyData } from './tools/delete_my_data.ts';
+import { registerViews } from './ui.ts';
 
 export const SERVER_INFO = { name: 'after-purchase-concierge', version: '0.1.0' };
 
@@ -23,5 +24,6 @@ export function buildServer(): McpServer {
   registerFileWarrantyClaim(server);
   registerOrderPart(server);
   registerDeleteMyData(server);
+  registerViews(server);
   return server;
 }

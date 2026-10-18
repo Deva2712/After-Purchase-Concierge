@@ -5,6 +5,7 @@ import { demoCustomer } from '../identity.ts';
 import { getSteps, putSession } from '../db.ts';
 import { retrieveSteps } from '../kb.ts';
 import { runTool } from '../log.ts';
+import { uiMeta } from '../ui.ts';
 
 export function registerTroubleshoot(server: McpServer) {
   server.registerTool(
@@ -17,6 +18,7 @@ export function registerTroubleshoot(server: McpServer) {
         symptom: z.string().min(1).describe("The problem in the customer's words, e.g. \"won't turn on\""),
       }),
       annotations: { readOnlyHint: true },
+      _meta: uiMeta('steps'),
     },
     async ({ productId, symptom }) => runTool('troubleshoot', { productId }, async () => {
       const p = products[productId];
