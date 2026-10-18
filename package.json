@@ -1,0 +1,38 @@
+{
+  "name": "after-purchase-concierge",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Self-hosted MCP server (built to be an Alexa+ add-on) that troubleshoots a purchased product from its manual, then files the cheapest resolution: return, warranty claim or part. Demoed through a simulated Alexa+ experience.",
+  "license": "MIT",
+  "type": "module",
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "dev": "tsx watch src/main.ts",
+    "build": "tsc && mkdir -p dist/sim && cp sim/index.html dist/sim/",
+    "test": "node --test 'test/**/*.test.ts'",
+    "test:e2e": "node --env-file-if-exists=.env --test 'test/**/*.e2e.ts'",
+    "test:cases": "echo 'not built yet (Phase 4)'",
+    "check:env": "echo 'not built yet (Phase 0 optimise)'",
+    "seed": "echo 'not built yet (Phase 2)'",
+    "precompute": "echo 'not built yet (Phase 2)'",
+    "deploy": "bash scripts/deploy.sh"
+  },
+  "dependencies": {
+    "@aws-sdk/client-bedrock-runtime": "3.1152.0",
+    "@modelcontextprotocol/client": "2.3.1",
+    "@modelcontextprotocol/express": "2.0.2",
+    "@modelcontextprotocol/ext-apps": "2.0.3",
+    "@modelcontextprotocol/node": "2.1.1",
+    "@modelcontextprotocol/server": "2.3.1",
+    "express": "5.3.0",
+    "zod": "4.6.7"
+  },
+  "devDependencies": {
+    "@types/express": "5.0.6",
+    "@types/node": "26.6.5",
+    "tsx": "4.23.15",
+    "typescript": "5.9.3"
+  }
+}
