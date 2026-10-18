@@ -55,3 +55,14 @@ Entries 1 and 2 were found while reading the docs on 11 Oct 2026, before any cod
 - Severity: minor (about 20 minutes)
 - Workaround: `npm install --include=dev`. Setup notes will tell contributors to unset `NODE_ENV` or pass `--include=dev`.
 - Suggestion: npm should print a one-line notice when a `--save-dev` install is omitted because of `NODE_ENV` or `omit=dev`. Writing `package.json` without installing anything, silently, is surprising.
+
+### 4. MCP Apps `AppBridge.setHostContext()` throws "Not connected" when called before `connect()`
+- Date: 18 Oct 2026
+- Tool: `@modelcontextprotocol/ext-apps` 2.0.3 (`AppBridge`, host side)
+- Task attempted: Build the simulator's MCP Apps host: create an `AppBridge`, give it the host context (display mode, theme, container size), connect it to the card's iframe over `PostMessageTransport`.
+- Steps taken: `new AppBridge(null, hostInfo, caps)`, then `bridge.setHostContext({...})`, then `bridge.connect(transport)`, then set the iframe `srcdoc`.
+- Expected: `setHostContext` stores the context so it is included in the `ui/initialize` response.
+- Actual: `setHostContext` diffs against the current context and immediately sends a `ui/notifications/host-context-changed` notification, which throws an unhandled `SdkError: Not connected` because the transport is not connected yet. The context is still stored, so the handshake works and the only symptom is an uncaught rejection in the console; found by reading the minified bundle. The supported way is the constructor's fourth argument, `options.hostContext`, which the typed signature exposes but the method docs do not point to.
+- Severity: minor (about 20 minutes)
+- Workaround: Pass `{ hostContext }` as the `AppBridge` constructor options and call `setHostContext` only after `connect()`.
+- Suggestion: Make `setHostContext` a no-op send before connect (store only), or document on the method that it notifies and must be called after `connect()`.

@@ -1,5 +1,6 @@
 // Simulated Alexa+ brain. An ordinary MCP client of MCP_URL plus a Bedrock Converse tool-use loop.
 // Rules (CLAUDE.md): never import src/tools from here; no tool names or scripted flow in the system prompt.
+import { join } from 'node:path';
 import { Router, type Request, type Response, type NextFunction } from 'express';
 import { Client, StreamableHTTPClientTransport } from '@modelcontextprotocol/client';
 import { BedrockRuntimeClient, ConverseCommand, type Message, type Tool } from '@aws-sdk/client-bedrock-runtime';
@@ -40,9 +41,19 @@ function resourceUriOf(meta: Record<string, unknown> | undefined): string | unde
   return ui?.resourceUri ?? (meta?.['ui/resourceUri'] as string | undefined);
 }
 
+// ponytail: tool -> ui:// map cached per process; the server lists tools in milliseconds, but not on every card button.
+let uriCache: { at: number; map: Map<string, string | undefined> } | undefined;
+async function resourceUris(client: Client): Promise<Map<string, string | undefined>> {
+  if (uriCache && Date.now() - uriCache.at < 60_000) return uriCache.map;
+  const listed = await client.listTools();
+  uriCache = { at: Date.now(), map: new Map(listed.tools.map(t => [t.name, resourceUriOf(t._meta as Record<string, unknown> | undefined)])) };
+  return uriCache.map;
+}
+
 export async function callTool(name: string, args: Record<string, unknown>): Promise<ToolCallRecord> {
   const client = await connectMcp();
   try {
+    const uris = await resourceUris(client);
     const t0 = Date.now();
     const result = await client.callTool({ name, arguments: args });
     const first = (result.content as Array<{ type: string; text?: string }> | undefined)?.find(c => c.type === 'text');
@@ -53,6 +64,7 @@ export async function callTool(name: string, args: Record<string, unknown>): Pro
       isError: result.isError === true,
       text: first?.text ?? '',
       structuredContent: result.structuredContent,
+      resourceUri: uris.get(name),
     };
   } finally {
     await client.close();
@@ -144,8 +156,37 @@ function requireCode(req: Request, res: Response, next: NextFunction) {
 
 export function simRouter(): Router {
   const r = Router();
-  r.get('/', (_req, res) => res.sendFile(new URL('./index.html', import.meta.url).pathname));
+  // The page is the Vite single-file build (npm run build); it holds no secrets, so it needs no code.
+  r.get('/', (_req, res) => res.sendFile(join(process.cwd(), 'dist', 'sim', 'index.html')));
   r.use(requireCode);
+  // The host reads a ui:// view through the MCP client before it delivers the tool result to the card.
+  r.get('/resource', async (req, res) => {
+    const uri = String(req.query.uri ?? '');
+    if (!uri.startsWith('ui://')) { res.status(400).json({ error: 'uri must be a ui:// resource' }); return; }
+    const client = await connectMcp();
+    try {
+      const out = await client.readResource({ uri });
+      const c = out.contents[0] as { mimeType?: string; text?: string } | undefined;
+      if (!c?.text) { res.status(404).json({ error: 'resource has no text' }); return; }
+      res.type(c.mimeType?.startsWith('text/html') ? 'text/html' : c.mimeType ?? 'text/plain').send(c.text);
+    } catch (err) {
+      console.error(JSON.stringify({ event: 'sim_resource_error', name: (err as Error).name }));
+      res.status(502).json({ error: 'could not read the resource' });
+    } finally {
+      await client.close();
+    }
+  });
+  // A card button's tool call, forwarded as-is through the MCP client.
+  r.post('/tool', async (req, res) => {
+    const { name, arguments: args } = req.body ?? {};
+    if (typeof name !== 'string') { res.status(400).json({ error: 'name is required' }); return; }
+    try {
+      res.json(await callTool(name, (args ?? {}) as Record<string, unknown>));
+    } catch (err) {
+      console.error(JSON.stringify({ event: 'sim_tool_error', name: (err as Error).name }));
+      res.status(502).json({ name, arguments: args ?? {}, ms: 0, isError: true, text: 'Sorry, that did not go through. Please try again.' });
+    }
+  });
   r.post('/chat', async (req, res) => {
     const { sessionId, utterance } = req.body ?? {};
     if (typeof sessionId !== 'string' || typeof utterance !== 'string') {

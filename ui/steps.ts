@@ -43,4 +43,5 @@ app.ontoolresult = result => {
   const sc = result.structuredContent as StepsData | undefined;
   if (sc && Array.isArray(sc.steps)) render(sc);
 };
+window.addEventListener('error', e => console.log('[steps card] error', e.message));
 await app.connect();
