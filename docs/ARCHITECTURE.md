@@ -93,11 +93,11 @@ All tools are stateless from the transport's point of view. Customer identity co
 |---|---|---|---|---|
 | `identify_product` | `query: string` (product words or order number) | `{ candidates: [{ orderId, lineItemId, productId, title, purchaseDate, imageUrl }] }` | writes SESSION | none |
 | `troubleshoot` | `productId: string, symptom: string` | `{ steps: [{ n, title, detail }], source: { document, page }, productId }` | none | steps |
-| `report_outcome` | `productId: string, worked: boolean` | if worked: `{ resolved: true }`; else same as `get_resolution_options` | writes SESSION | options |
+| `report_outcome` | `productId: string, worked: boolean, orderId?, lineItemId?` (falls back to the session) | if worked: `{ resolved: true }`; else same as `get_resolution_options` | writes SESSION | options |
 | `get_resolution_options` | `orderId, lineItemId, symptom?` | `{ options: [{ action, eligible, rank, reason, cost, detail }] }` | none | options |
 | `create_return` | `orderId, lineItemId, reason, confirmed: boolean` | `{ returnId, qrPngDataUrl, pickup: { date, window } }` | Shopify `returnCreate`, DynamoDB RETURN | confirmation |
 | `file_warranty_claim` | `orderId, lineItemId, symptom, confirmed: boolean` | `{ claimRef, nextStep }` | DynamoDB CLAIM | confirmation |
-| `order_part` | `orderId, partVariantId, confirmed: boolean` | `{ draftOrderId, part, price, eta }` | Shopify `draftOrderCreate`, DynamoDB PART | confirmation |
+| `order_part` | `orderId, lineItemId, partSku?, confirmed: boolean` (the part comes from the eligible option; its variant is looked up by SKU) | `{ draftOrderId, part, price, eta }` | Shopify `draftOrderCreate`, DynamoDB PART | confirmation |
 | `delete_my_data` | `confirmed: boolean` | `{ deleted: number }` | deletes all items for the customer | none |
 
 Rules

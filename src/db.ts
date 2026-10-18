@@ -28,6 +28,7 @@ export type Session = {
   lastLineItemId?: string;
   lastSymptomKey?: string;
   lastSymptomText?: string;
+  lastOutcome?: string;
   updatedAt?: string;
 };
 
@@ -75,6 +76,11 @@ export async function putOnce<T extends Record<string, unknown>>(customerHash: s
     const r = await ddb.send(new GetCommand({ TableName: TABLE(), Key }));
     return { created: false, record: r.Item as T };
   }
+}
+
+export async function getRecord<T extends Record<string, unknown>>(customerHash: string, sk: string): Promise<T | undefined> {
+  const r = await ddb.send(new GetCommand({ TableName: TABLE(), Key: { pk: `CUST#${customerHash}`, sk } }));
+  return r.Item as T | undefined;
 }
 
 export async function listRecords(customerHash: string, skPrefix = ''): Promise<Record<string, unknown>[]> {

@@ -92,7 +92,7 @@ Priority: M = must (demo breaks without it), S = should (judges will notice), C 
 | FR-9 | `get_resolution_options(orderId, lineItemId, symptom?)` SHALL return every resolution (return, warranty claim, replacement part, contact merchant) with `eligible`, `rank`, `reason`, `cost` and `detail`, computed by the policy in section 3.3. | M |
 | FR-10 | `create_return(orderId, lineItemId, reason, confirmed)` SHALL, when `confirmed` is true and the return is eligible, create a return in Shopify (`returnCreate`), store a RETURN record, and return the return ID, a QR code image (data URL) and a pickup date. | M |
 | FR-11 | `file_warranty_claim(orderId, lineItemId, symptom, confirmed)` SHALL, when `confirmed` is true and warranty is active, store a CLAIM record with a human-readable reference and next step. | M |
-| FR-12 | `order_part(orderId, partVariantId, confirmed)` SHALL, when `confirmed` is true, create a Shopify draft order for the part, store a PART record, and return part name, price and ETA. | S |
+| FR-12 | `order_part(orderId, lineItemId, partSku?, confirmed)` SHALL, when `confirmed` is true, create a Shopify draft order for the part, store a PART record, and return part name, price and ETA. | S |
 | FR-13 | The full flow (FR-6 to FR-11) SHALL be completable by voice in the deployed simulator, with every tool call travelling through the public `POST /mcp` endpoint. | M |
 | FR-14 | `delete_my_data(confirmed)` SHALL delete every stored item for the demo customer and return the count. `DELETE /data?customer=<id>` SHALL do the same over HTTP. | S |
 | FR-15 | Write tools (FR-10, FR-11, FR-12, FR-14) called with `confirmed` not equal to true SHALL NOT perform the action and SHALL return a non-error message asking for customer confirmation. | M |
