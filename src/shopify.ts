@@ -53,7 +53,15 @@ function toOrder(o: RawOrder): Order {
 }
 
 export function createShopify(deps: ShopifyDeps = {}) {
-  const doFetch: typeof fetch = deps.fetch ?? ((input, init) => globalThis.fetch(input, init));
+  const rawFetch: typeof fetch = deps.fetch ?? ((input, init) => globalThis.fetch(input, init));
+  // Network failures and timeouts become ShopifyError too, so every store problem speaks the same sentence.
+  const doFetch: typeof fetch = async (input, init) => {
+    try {
+      return await rawFetch(input, init);
+    } catch (e) {
+      throw new ShopifyError(`network ${(e as Error).name}`);
+    }
+  };
   const now = deps.now ?? Date.now;
   const env = () => ({
     store: deps.store ?? process.env.SHOPIFY_STORE ?? '',

@@ -26,8 +26,9 @@ export async function runTool(tool: string, ids: Record<string, string | undefin
   }
 }
 
+// One sentence each (CLAUDE.md: errors to the customer are one speakable sentence).
 function speakable(e: Error): string {
-  if (e instanceof ShopifyError) return "I can't reach the store right now. Please try again in a minute.";
-  if (/Dynamo|Bedrock|ResourceNotFound|AccessDenied|Credentials/i.test(e.name + e.message)) return "I can't reach my records right now. Please try again in a minute.";
-  return 'Something went wrong on my side. Please try again.';
+  if (e instanceof ShopifyError) return "I can't reach the store right now, please try again in a minute.";
+  if (/Dynamo|Bedrock|ResourceNotFound|AccessDenied|Credentials/i.test(e.name + e.message)) return "I can't reach my records right now, please try again in a minute.";
+  return 'Something went wrong on my side, please try again.';
 }

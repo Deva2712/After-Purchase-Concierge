@@ -13,8 +13,8 @@
     "build": "tsc && rm -rf dist/ui dist/sim && for t in steps options confirmation sim; do VITE_TARGET=$t vite build || exit 1; done",
     "test": "node --test 'test/**/*.test.ts'",
     "test:e2e": "node --env-file-if-exists=.env --test 'test/**/*.e2e.ts'",
-    "test:cases": "echo 'not built yet (Phase 4)'",
-    "check:env": "echo 'not built yet (Phase 0 optimise)'",
+    "test:cases": "tsx scripts/run-cases.ts",
+    "check:env": "tsx scripts/check-env.ts",
     "seed": "tsx scripts/seed-shopify.ts",
     "precompute": "tsx scripts/precompute.ts",
     "deploy": "bash scripts/deploy.sh"
@@ -23,6 +23,7 @@
     "@aws-sdk/client-bedrock-agent-runtime": "3.1152.0",
     "@aws-sdk/client-bedrock-runtime": "3.1152.0",
     "@aws-sdk/client-dynamodb": "3.1152.0",
+    "@aws-sdk/client-sts": "3.1152.0",
     "@aws-sdk/lib-dynamodb": "3.1152.0",
     "@modelcontextprotocol/client": "2.3.1",
     "@modelcontextprotocol/express": "2.0.2",
