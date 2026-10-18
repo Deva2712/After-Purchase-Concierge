@@ -44,3 +44,14 @@ Entries 1 and 2 were found while reading the docs on 11 Oct 2026, before any cod
 - Severity: minor (found before any work was done)
 - Workaround: ECS Express Mode with a Dockerfile.
 - Suggestion: Offer a source-to-service path in ECS Express Mode (connect a repo, no Dockerfile) so the App Runner experience is not lost for small projects.
+
+### 3. npm silently skips devDependencies when the shell has NODE_ENV=production
+- Date: 18 Oct 2026
+- Tool: npm 11 (Node 24)
+- Task attempted: `npm install -D typescript tsx @types/node @types/express` while scaffolding the repo (Phase 0).
+- Steps taken: Ran the install, saw the four entries appear in `package.json`, then ran `npx tsc --noEmit`.
+- Expected: The dev dependencies install, or npm says why it did not install them.
+- Actual: Nothing was installed and nothing was printed. The developer shell exports `NODE_ENV=production`, which npm maps to `omit=dev`, so `npm install -D` wrote `package.json` but skipped the packages. `npx tsc` then downloaded an unrelated registry package named `tsc` that prints "This is not the tsc command you are looking for".
+- Severity: minor (about 20 minutes)
+- Workaround: `npm install --include=dev`. Setup notes will tell contributors to unset `NODE_ENV` or pass `--include=dev`.
+- Suggestion: npm should print a one-line notice when a `--save-dev` install is omitted because of `NODE_ENV` or `omit=dev`. Writing `package.json` without installing anything, silently, is surprising.
