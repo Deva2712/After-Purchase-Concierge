@@ -1,0 +1,45 @@
+{
+  "problend900": {
+    "title": "ProBlend 900 Blender",
+    "aliases": ["blender", "problend", "pro blend", "problend 900"],
+    "price": 89.0,
+    "returnWindowDays": 30,
+    "warrantyMonths": 12,
+    "manual": "manuals/problend900.pdf",
+    "symptoms": {
+      "wont-turn-on": { "aliases": ["won't turn on", "wont turn on", "dead", "no power", "stopped working", "doesn't start", "not turning on"], "severity": "high" },
+      "leaking": { "aliases": ["leaking", "leaks", "leaking from the base", "liquid under the jar", "dripping"], "severity": "medium" }
+    },
+    "parts": [
+      { "name": "Blade assembly with seal", "sku": "PB900-BLADE", "price": 18.0, "symptoms": ["leaking"] }
+    ]
+  },
+  "quietwave-h2": {
+    "title": "QuietWave H2 Headphones",
+    "aliases": ["headphones", "quietwave", "quiet wave", "headset", "earphones"],
+    "price": 129.0,
+    "returnWindowDays": 30,
+    "warrantyMonths": 12,
+    "manual": "manuals/quietwave-h2.pdf",
+    "symptoms": {
+      "no-sound-one-side": { "aliases": ["no sound on one side", "one side is silent", "only one ear works", "left side dead", "right side dead", "one earcup not working"], "severity": "medium" },
+      "wont-pair": { "aliases": ["won't pair", "wont pair", "can't connect", "not connecting", "bluetooth not working", "not found by my phone"], "severity": "medium" }
+    },
+    "parts": []
+  },
+  "swiftboil-k1": {
+    "title": "SwiftBoil K1 Kettle",
+    "aliases": ["kettle", "swiftboil", "swift boil", "electric kettle"],
+    "price": 49.0,
+    "returnWindowDays": 30,
+    "warrantyMonths": 24,
+    "manual": "manuals/swiftboil-k1.pdf",
+    "symptoms": {
+      "lid-wont-close": { "aliases": ["lid won't close", "lid wont close", "lid doesn't latch", "lid pops open", "lid is loose", "lid won't stay shut"], "severity": "low" },
+      "wont-heat": { "aliases": ["won't heat", "wont heat", "not boiling", "doesn't get hot", "water stays cold", "switches off straight away"], "severity": "high" }
+    },
+    "parts": [
+      { "name": "Lid seal", "sku": "SBK1-LIDSEAL", "price": 6.0, "symptoms": ["lid-wont-close"] }
+    ]
+  }
+}
